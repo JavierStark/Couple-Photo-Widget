@@ -30,7 +30,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <receiver android:name="com.example.couple_photo_widget.MainWidgetProvider"
+        <receiver android:name="dev.javiertorralbo.couple_photo_widget.MainWidgetProvider"
             android:label="Main Widget"
             android:exported="true">
             <intent-filter>
