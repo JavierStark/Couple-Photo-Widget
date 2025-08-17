@@ -29,7 +29,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "dev.javiertorralbo.example.couple_photo_widget"
+        applicationId = "dev.javiertorralbo.couple_photo_widget"
         minSdk = 21
         targetSdk = 34
         versionCode = 2

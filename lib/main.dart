@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:couple_photo_widget/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,9 +38,20 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image == null) return;
+
     setState(() {
       _image = image;
     });
+
+    final dir = await getApplicationDocumentsDirectory();
+    //change color of print
+    print('\x1B[32mImage path: ${dir.path}\x1B[0m');
+    final file = File('${dir.path}/widget.png');
+    await file.writeAsBytes(await image.readAsBytes());
+    print('\x1B[32mFile saved at: ${file.path}\x1B[0m');
+    updateWidget(file.path);
   }
 
   @override
@@ -53,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ElevatedButton(
-              onPressed: _pickImage,
+              onPressed: () => _pickImage(),
               child: const Text('Pick Image'),
             ),
             const SizedBox(height: 20),
