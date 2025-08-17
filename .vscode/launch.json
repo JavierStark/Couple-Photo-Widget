@@ -1,0 +1,12 @@
+{
+    "configurations": [    
+        {
+        "name": "Flutter",
+        "request": "launch",
+        "type": "dart",
+        "args": [
+            "--dart-define=SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0bG1oZnByam1jYWp1cHdsZWdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUzNTg2MjksImV4cCI6MjA3MDkzNDYyOX0.7Z7jWBFGwT80FLv3G97iH1tAbPali9l4iqgHsNLwKI4"
+        ]
+        }
+  ]
+}

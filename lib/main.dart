@@ -1,11 +1,21 @@
 import 'dart:io';
 
+import 'package:couple_photo_widget/image_picker_widget.dart';
+import 'package:couple_photo_widget/image_repo.dart';
+import 'package:couple_photo_widget/match_widget.dart';
+import 'package:couple_photo_widget/sign_in_widget.dart';
 import 'package:couple_photo_widget/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+const supabaseUrl = 'https://gtlmhfprjmcajupwlegq.supabase.co';
+const supabaseKey = String.fromEnvironment('SUPABASE_KEY');
+
+Future<void> main() async {
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
+
   runApp(const MyApp());
 }
 
@@ -33,25 +43,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  XFile? _image;
+  bool _isSignedIn = false;
+  bool _isMatched = false;
 
-  Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-    if (image == null) return;
-
+  //callback signedin
+  void _handleSignedIn() {
     setState(() {
-      _image = image;
+      _isSignedIn = true;
     });
+  }
 
-    final dir = await getApplicationDocumentsDirectory();
-    //change color of print
-    print('\x1B[32mImage path: ${dir.path}\x1B[0m');
-    final file = File('${dir.path}/widget.png');
-    await file.writeAsBytes(await image.readAsBytes());
-    print('\x1B[32mFile saved at: ${file.path}\x1B[0m');
-    updateWidget(file.path);
+  void _handleMatch() {
+    setState(() {
+      _isMatched = true;
+    });
   }
 
   @override
@@ -62,19 +67,11 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () => _pickImage(),
-              child: const Text('Pick Image'),
-            ),
-            const SizedBox(height: 20),
-            _image != null
-                ? Image.file(File(_image!.path), width: 200, height: 200)
-                : const Text('No image selected'),
-          ],
-        ),
+        child: _isSignedIn
+            ? (_isMatched
+                  ? ImagePickerWidget()
+                  : MatchWidget(onMatch: _handleMatch))
+            : SignInWidget(onSignedIn: _handleSignedIn),
       ),
     );
   }
