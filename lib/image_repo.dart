@@ -54,7 +54,9 @@ Future<SecretBox> binaryToSecretBox(Uint8List binary) async {
 Future<void> uploadImage(XFile image) async {
   final client = Supabase.instance.client;
 
-  final fileName = 'img_${DateTime.now().millisecondsSinceEpoch}.enc';
+  //generate random unique name
+  final fileName =
+      'img_${DateTime.now().millisecondsSinceEpoch}_${client.auth.currentUser?.id ?? ''}_${image.hashCode}.enc';
 
   var data = await image.readAsBytes();
 
@@ -67,6 +69,27 @@ Future<void> uploadImage(XFile image) async {
   await client.storage
       .from('Images')
       .uploadBinary(fileName, await secretBoxToBinary(encrypted));
+
+  await client
+      .from('couples')
+      .select('id, user1_email, user2_email')
+      .or(
+        'user1_email.eq.${client.auth.currentUser?.email},user2_email.eq.${client.auth.currentUser?.email}',
+      )
+      .eq('confirmed', true)
+      .single()
+      .then((value) async {
+        final coupleId = value['id'] as String;
+
+        final fieldName = value['user1_email'] == client.auth.currentUser?.email
+            ? 'user1_photo'
+            : 'user2_photo';
+
+        await client.from('match_photos').upsert({
+          'match_id': coupleId,
+          fieldName: fileName,
+        });
+      });
 }
 
 Future<XFile> downloadImage(String imageName) async {
