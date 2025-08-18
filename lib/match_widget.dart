@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:couple_photo_widget/utils.dart';
 
 class MatchWidget extends StatefulWidget {
   const MatchWidget({super.key, required this.onMatch});
@@ -32,7 +33,7 @@ class _MatchWidgetState extends State<MatchWidget> {
         .maybeSingle();
 
     if (confirmedRequest != null) {
-      print('You already have a confirmed match.');
+      snackBarMessage(context, 'You already have a confirmed match.');
       widget.onMatch();
     }
   }
@@ -41,7 +42,7 @@ class _MatchWidgetState extends State<MatchWidget> {
     final email = _emailController.text.trim();
 
     if (email == myEmail) {
-      print('Cannot match with yourself');
+      snackBarMessage(context, 'Cannot match with yourself');
       return;
     }
 
@@ -59,8 +60,7 @@ class _MatchWidgetState extends State<MatchWidget> {
           .from('couples')
           .update({'confirmed': true})
           .eq('id', previousRequest['id']);
-      print('Match confirmed!');
-      // Optionally update UI/state here
+      snackBarMessage(context, 'Match confirmed!');
       widget.onMatch();
       return;
     }
@@ -74,7 +74,7 @@ class _MatchWidgetState extends State<MatchWidget> {
         .maybeSingle();
 
     if (existingRequest != null) {
-      print('You already requested this user.');
+      snackBarMessage(context, 'You already requested this user.');
       return;
     }
 
@@ -84,7 +84,7 @@ class _MatchWidgetState extends State<MatchWidget> {
       'user2_email': email,
       'confirmed': false,
     });
-    print('Request sent!');
+    snackBarMessage(context, 'Request sent!');
 
     //now stay waiting for confirmation looking every some seconds to the confirmed value
     Future.delayed(const Duration(seconds: 5), () async {
@@ -96,10 +96,10 @@ class _MatchWidgetState extends State<MatchWidget> {
           .maybeSingle();
 
       if (updatedRequest != null && updatedRequest['confirmed'] == true) {
-        print('Match confirmed!');
+        snackBarMessage(context, 'Match confirmed!');
         widget.onMatch();
       } else {
-        print('Still waiting for confirmation...');
+        snackBarMessage(context, 'Still waiting for confirmation...');
       }
     });
   }

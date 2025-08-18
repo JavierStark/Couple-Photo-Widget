@@ -11,10 +11,6 @@ const ivString = '8bytesiv12345678'; // 16 chars for AES
 Future<void> uploadImage(XFile image) async {
   final client = Supabase.instance.client;
 
-  if (client.auth.currentUser == null) {
-    await signIn();
-  }
-
   print('\x1B[33m${client.auth.currentUser}\x1B[0m');
 
   final fileName = 'img_${DateTime.now().millisecondsSinceEpoch}.enc';
@@ -45,10 +41,6 @@ Future<void> uploadImage(XFile image) async {
 Future<XFile> downloadImage(String imageName) async {
   final client = Supabase.instance.client;
 
-  if (client.auth.currentUser == null) {
-    await signIn();
-  }
-
   final response = await client.storage.from('Images').download(imageName);
   final imageData = await decryptImage(response);
 
@@ -64,9 +56,4 @@ Future<Uint8List> decryptImage(Uint8List encryptedBytes) async {
     iv: iv,
   );
   return Uint8List.fromList(decrypted);
-}
-
-Future<void> signIn() async {
-  final client = Supabase.instance.client;
-  await client.auth.signInWithOtp(email: "javiertorralbocortes@gmail.com");
 }

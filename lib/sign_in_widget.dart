@@ -1,6 +1,8 @@
 import 'package:couple_photo_widget/main.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:couple_photo_widget/utils.dart';
+import 'package:couple_photo_widget/crypto.dart';
 
 class SignInWidget extends StatefulWidget {
   const SignInWidget({super.key, required this.onSignedIn});
@@ -22,7 +24,7 @@ class _SignInWidgetState extends State<SignInWidget> {
     //sign in auto if already session signed in
     final session = Supabase.instance.client.auth.currentSession;
     if (session != null) {
-      print("User is already signed in!");
+      snackBarMessage(context, "User is already signed in!");
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onSignedIn.call();
       });
@@ -66,9 +68,7 @@ class _SignInWidgetState extends State<SignInWidget> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter email and password')),
-      );
+      snackBarMessage(context, "Please enter email and password");
       return;
     }
 
@@ -76,20 +76,19 @@ class _SignInWidgetState extends State<SignInWidget> {
         .signInWithPassword(password: password, email: email)
         .then((response) {
           if (response.session == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Error signing in: Invalid credentials'),
-              ),
-            );
+            snackBarMessage(context, "Error signing in: Invalid credentials");
           } else {
-            print("User signed in successfully!");
+            snackBarMessage(context, "User signed in successfully!");
+            checkKeysExist(response.user!.id).then((exists) {
+              if (!exists) {
+                generateAndSaveKeys(response.user!.id);
+              }
+            });
             widget.onSignedIn.call();
           }
         })
         .catchError((error) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Error signing in: $error')));
+          snackBarMessage(context, "Error signing in: $error");
         });
   }
 
@@ -98,9 +97,7 @@ class _SignInWidgetState extends State<SignInWidget> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter email and password')),
-      );
+      snackBarMessage(context, "Please enter email and password");
       return;
     }
 
@@ -108,19 +105,15 @@ class _SignInWidgetState extends State<SignInWidget> {
         .signUp(password: password, email: email)
         .then((response) {
           if (response.user == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Error signing up: Could not create user'),
-              ),
-            );
+            snackBarMessage(context, "Error signing up: Could not create user");
           } else {
+            snackBarMessage(context, "User signed up successfully!");
+            generateAndSaveKeys(response.user!.id);
             widget.onSignedIn.call();
           }
         })
         .catchError((error) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Error signing up: $error')));
+          snackBarMessage(context, "Error signing up: $error");
         });
   }
 }
