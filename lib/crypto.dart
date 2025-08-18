@@ -1,14 +1,11 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final secureStorage = FlutterSecureStorage();
-
-String encodePublicKey(SimplePublicKey key) {
-  return jsonEncode({'key': base64Encode(key.bytes)});
-}
 
 SimplePublicKey decodePublicKey(String jsonString) {
   final data = jsonDecode(jsonString);
@@ -23,10 +20,11 @@ Future<void> generateAndSaveKeys(String userId) async {
   final keyPair = await algorithm.newKeyPair();
 
   final privateKey = await keyPair.extract();
+  final privateKeyString = base64Encode(privateKey.bytes);
   final publicKey = await keyPair.extractPublicKey();
-  final publicKeyStr = encodePublicKey(publicKey);
+  final publicKeyStr = base64Encode(publicKey.bytes);
 
-  await secureStorage.write(key: 'private_key', value: privateKey.toString());
+  await secureStorage.write(key: 'private_key', value: privateKeyString);
 
   await Supabase.instance.client.from('user_keys').upsert({
     'user_id': userId,
@@ -44,7 +42,7 @@ Future<bool> checkKeysExist(String userId) async {
   return publicKey != null;
 }
 
-Future<SimplePublicKey?> getPublicKey(String userId) async {
+Future<SimplePublicKey> getPublicKey(String userId) async {
   final publicKey = await Supabase.instance.client
       .from('user_keys')
       .select('public_key')
@@ -54,7 +52,20 @@ Future<SimplePublicKey?> getPublicKey(String userId) async {
   if (publicKey != null && publicKey['public_key'] != null) {
     return decodePublicKey(publicKey['public_key'] as String);
   }
-  return null;
+  throw Exception("Public key not found");
+}
+
+Future<SimpleKeyPair> getPrivateKey() async {
+  final privateKeyString = await secureStorage.read(key: 'private_key');
+  if (privateKeyString != null) {
+    final privateKeyBytes = base64Decode(privateKeyString);
+    return SimpleKeyPairData(
+      privateKeyBytes,
+      type: KeyPairType.x25519,
+      publicKey: SimplePublicKey(privateKeyBytes, type: KeyPairType.x25519),
+    );
+  }
+  throw Exception("Private key not found");
 }
 
 Future<SecretBox> encryptImageWithSharedSecret(
