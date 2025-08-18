@@ -1,13 +1,7 @@
-import 'dart:io';
-
 import 'package:couple_photo_widget/image_picker_widget.dart';
-import 'package:couple_photo_widget/image_repo.dart';
 import 'package:couple_photo_widget/match_widget.dart';
 import 'package:couple_photo_widget/sign_in_widget.dart';
-import 'package:couple_photo_widget/widget.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const supabaseUrl = 'https://gtlmhfprjmcajupwlegq.supabase.co';

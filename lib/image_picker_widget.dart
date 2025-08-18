@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:couple_photo_widget/image_repo.dart';
-import 'package:couple_photo_widget/main.dart';
 import 'package:couple_photo_widget/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';

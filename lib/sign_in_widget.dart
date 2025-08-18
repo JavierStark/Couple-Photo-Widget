@@ -1,4 +1,3 @@
-import 'package:couple_photo_widget/main.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:couple_photo_widget/utils.dart';
