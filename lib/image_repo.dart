@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:couple_photo_widget/utils.dart';
+import 'package:together_pic/utils.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:couple_photo_widget/crypto.dart';
-import 'package:couple_photo_widget/match.dart';
+import 'package:together_pic/crypto.dart';
+import 'package:together_pic/match.dart';
 
 const keyString = 'my32lengthsupersecretnooneknows1'; // 32 chars for AES-256
 const ivString = '8bytesiv12345678'; // 16 chars for AES

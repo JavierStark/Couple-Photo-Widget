@@ -1,6 +1,6 @@
 {
-    "name": "couple_photo_widget",
-    "short_name": "couple_photo_widget",
+    "name": "together_pic",
+    "short_name": "together_pic",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:couple_photo_widget/utils.dart';
+import 'package:together_pic/utils.dart';
 
 class MatchWidget extends StatefulWidget {
   const MatchWidget({super.key, required this.onMatch});

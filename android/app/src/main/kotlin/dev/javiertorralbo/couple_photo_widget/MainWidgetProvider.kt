@@ -1,9 +1,8 @@
-package dev.javiertorralbo.couple_photo_widget
+package dev.javiertorralbo.together_pic
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.widget.RemoteViews
 import java.io.File
@@ -26,9 +25,8 @@ class MainWidgetProvider : AppWidgetProvider() {
                 val file = File(imagePath)
                 if (file.exists()) {
                     val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-                    val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 300, 300, true)
 
-                    views.setImageViewBitmap(R.id.widgetImage, scaledBitmap)
+                    views.setImageViewBitmap(R.id.widgetImage, bitmap)
                 } else {
                     println("\u001B[31mFile does not exist at: $imagePath\u001B[0m")
                 }

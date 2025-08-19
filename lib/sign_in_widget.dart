@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:couple_photo_widget/utils.dart';
-import 'package:couple_photo_widget/crypto.dart';
+import 'package:together_pic/utils.dart';
+import 'package:together_pic/crypto.dart';
 
 class SignInWidget extends StatefulWidget {
   const SignInWidget({super.key, required this.onSignedIn});

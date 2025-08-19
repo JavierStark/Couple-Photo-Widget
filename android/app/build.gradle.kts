@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 android {
-    namespace = "dev.javiertorralbo.couple_photo_widget"
+    namespace = "dev.javiertorralbo.together_pic"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -29,10 +29,10 @@ android {
     }
 
     defaultConfig {
-        applicationId = "dev.javiertorralbo.couple_photo_widget"
+        applicationId = "dev.javiertorralbo.together_pic"
         minSdk = 21
         targetSdk = 34
-        versionCode = 2
+        versionCode = 4
         versionName = "1.0"
     }
 

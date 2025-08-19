@@ -1,4 +1,4 @@
-# couple_photo_widget
+# together_pic
 
 A new Flutter project.
 

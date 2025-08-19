@@ -1,6 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="couple_photo_widget"
+        android:label="together_pic"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -30,7 +31,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
-                    android:scheme="dev.javiertorralbo.couple_photo_widget"
+                    android:scheme="dev.javiertorralbo.together_pic"
                     android:host="auth-callback" />
             </intent-filter>
         </activity>
@@ -39,7 +40,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <receiver android:name="dev.javiertorralbo.couple_photo_widget.MainWidgetProvider"
+        <receiver android:name="dev.javiertorralbo.together_pic.MainWidgetProvider"
             android:label="Main Widget"
             android:exported="true">
             <intent-filter>

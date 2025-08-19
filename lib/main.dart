@@ -1,11 +1,12 @@
-import 'package:couple_photo_widget/image_picker_widget.dart';
-import 'package:couple_photo_widget/match_widget.dart';
-import 'package:couple_photo_widget/sign_in_widget.dart';
+import 'package:together_pic/image_picker_widget.dart';
+import 'package:together_pic/match_widget.dart';
+import 'package:together_pic/sign_in_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const supabaseUrl = 'https://gtlmhfprjmcajupwlegq.supabase.co';
-const supabaseKey = String.fromEnvironment('SUPABASE_KEY');
+const supabaseKey =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0bG1oZnByam1jYWp1cHdsZWdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUzNTg2MjksImV4cCI6MjA3MDkzNDYyOX0.7Z7jWBFGwT80FLv3G97iH1tAbPali9l4iqgHsNLwKI4';
 
 Future<void> main() async {
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);

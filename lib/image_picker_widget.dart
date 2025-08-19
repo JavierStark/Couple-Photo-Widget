@@ -1,9 +1,10 @@
 import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:couple_photo_widget/crypto.dart';
-import 'package:couple_photo_widget/image_repo.dart';
-import 'package:couple_photo_widget/utils.dart';
-import 'package:couple_photo_widget/widget.dart';
+import 'package:together_pic/crypto.dart';
+import 'package:together_pic/image_repo.dart';
+import 'package:together_pic/utils.dart';
+import 'package:together_pic/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -45,6 +46,8 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
     });
     XFile? image = await getMatchPhoto();
 
+    print("photo got");
+
     if (image == null) {
       setState(() {
         _isReceivingLoading = false;
@@ -54,7 +57,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
     }
 
     final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/widget.png');
+    final file = File('${dir.path}/widget.jpeg');
     await file.writeAsBytes(await image.readAsBytes());
     await updateWidget(file.path);
     snackBarMessage(context, 'Widget updated with new image');
@@ -94,7 +97,27 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
             child: CircularProgressIndicator(),
           ),
         _receivedImage != null
-            ? Image.file(File(_receivedImage!.path), width: 200, height: 200)
+            ? FutureBuilder<Uint8List>(
+                future: _receivedImage!.readAsBytes(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done &&
+                      snapshot.hasData) {
+                    return Image.memory(
+                      snapshot.data!,
+                      width: 200,
+                      height: 200,
+                    );
+                  } else if (snapshot.hasError) {
+                    return const Text('Error loading image');
+                  } else {
+                    return const SizedBox(
+                      width: 200,
+                      height: 200,
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
+              )
             : const SizedBox(width: 200, height: 200),
       ],
     );

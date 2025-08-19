@@ -67,10 +67,12 @@ Future<SimpleKeyPair> getPrivateKey() async {
   final privateKeyString = await secureStorage.read(key: 'private_key');
   if (privateKeyString != null) {
     final privateKeyBytes = base64Decode(privateKeyString);
+    // get pair only from private key
+
     return SimpleKeyPairData(
       privateKeyBytes,
-      type: KeyPairType.x25519,
       publicKey: SimplePublicKey(privateKeyBytes, type: KeyPairType.x25519),
+      type: KeyPairType.x25519,
     );
   }
   throw Exception("Private key not found");
@@ -95,7 +97,6 @@ Future<SecretBox> encryptImageWithSharedSecret(
     nonce: nonce,
   );
 
-  //print mac and nonce
   print('MAC: ${secretBox.mac}');
   print('Nonce: ${secretBox.nonce}');
   return secretBox;
@@ -106,6 +107,7 @@ Future<List<int>> decryptImageWithSharedSecret(
   SimpleKeyPair myPrivateKey,
   SimplePublicKey theirPublicKey,
 ) async {
+  //build public key with string
   final x25519 = X25519();
   final sharedSecret = await x25519.sharedSecretKey(
     keyPair: myPrivateKey,
