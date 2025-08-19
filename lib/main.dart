@@ -9,21 +9,33 @@ const supabaseKey = String.fromEnvironment('SUPABASE_KEY');
 
 Future<void> main() async {
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
-
-  runApp(const MyApp());
+  runApp(const CouplePhotoApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class CouplePhotoApp extends StatelessWidget {
+  const CouplePhotoApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Couple Photo Widget',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
+        useMaterial3: true,
+        textTheme: const TextTheme(
+          headlineMedium: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.pinkAccent,
+          foregroundColor: Colors.white,
+          elevation: 2,
+        ),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Couple Photo Widget'),
     );
   }
 }
@@ -40,7 +52,6 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isSignedIn = false;
   bool _isMatched = false;
 
-  //callback signedin
   void _handleSignedIn() {
     setState(() {
       _isSignedIn = true;
@@ -57,15 +68,40 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text(
+          widget.title,
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        centerTitle: true,
       ),
-      body: Center(
-        child: _isSignedIn
-            ? (_isMatched
-                  ? ImagePickerWidget()
-                  : MatchWidget(onMatch: _handleMatch))
-            : SignInWidget(onSignedIn: _handleSignedIn),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.pinkAccent, Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: Card(
+            elevation: 8,
+            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                child: _isSignedIn
+                    ? (_isMatched
+                          ? ImagePickerWidget()
+                          : MatchWidget(onMatch: _handleMatch))
+                    : SignInWidget(onSignedIn: _handleSignedIn),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

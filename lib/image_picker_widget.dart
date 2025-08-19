@@ -16,23 +16,53 @@ class ImagePickerWidget extends StatefulWidget {
 }
 
 class _ImagePickerWidgetState extends State<ImagePickerWidget> {
-  XFile? _image;
+  XFile? _sendingImage;
+  XFile? _receivedImage;
+  bool _isPickingLoading = false;
+  bool _isReceivingLoading = false;
 
   Future<void> _pickImage() async {
+    setState(() {
+      _isPickingLoading = true;
+    });
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
-    if (image == null) return;
+    if (image != null) {
+      setState(() {
+        _sendingImage = image;
+      });
+      await uploadImage(image);
+    }
+    setState(() {
+      _isPickingLoading = false;
+    });
+  }
+
+  Future<void> _receiveImageAndUpdateWidget() async {
+    setState(() {
+      _isReceivingLoading = true;
+    });
+    XFile? image = await getMatchPhoto();
+
+    if (image == null) {
+      setState(() {
+        _isReceivingLoading = false;
+      });
+      snackBarMessage(context, 'No image found for the current match');
+      return;
+    }
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/widget.png');
+    await file.writeAsBytes(await image.readAsBytes());
+    await updateWidget(file.path);
+    snackBarMessage(context, 'Widget updated with new image');
 
     setState(() {
-      _image = image;
+      _receivedImage = image;
+      _isReceivingLoading = false;
     });
-
-    // final dir = await getApplicationDocumentsDirectory();
-    // final file = File('${dir.path}/widget.png');
-    // await file.writeAsBytes(await image.readAsBytes());
-    // updateWidget(file.path);
-    uploadImage(image);
   }
 
   @override
@@ -41,28 +71,32 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         ElevatedButton(
-          onPressed: () => _pickImage(),
+          onPressed: _isPickingLoading ? null : _pickImage,
           child: const Text('Pick Image'),
         ),
+        if (_isPickingLoading)
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: CircularProgressIndicator(),
+          ),
         const SizedBox(height: 20),
-        _image != null
-            ? Image.file(File(_image!.path), width: 200, height: 200)
-            : const Text('No image selected'),
+        _sendingImage != null
+            ? Image.file(File(_sendingImage!.path), width: 200, height: 200)
+            : const SizedBox(width: 200, height: 200),
         const SizedBox(height: 20),
         ElevatedButton(
-          onPressed: () => {receiveImageAndUpdateWidget()},
+          onPressed: _isReceivingLoading ? null : _receiveImageAndUpdateWidget,
           child: const Text('Update Widget / Receive Image'),
         ),
+        if (_isReceivingLoading)
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: CircularProgressIndicator(),
+          ),
+        _receivedImage != null
+            ? Image.file(File(_receivedImage!.path), width: 200, height: 200)
+            : const SizedBox(width: 200, height: 200),
       ],
     );
-  }
-
-  receiveImageAndUpdateWidget() async {
-    XFile image = await getMatchPhoto();
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/widget.png');
-    await file.writeAsBytes(await image.readAsBytes());
-    updateWidget(file.path);
-    snackBarMessage(context, 'Widget updated with new image');
   }
 }

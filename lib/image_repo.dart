@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:couple_photo_widget/utils.dart';
 import 'package:cryptography/cryptography.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:couple_photo_widget/crypto.dart';
@@ -13,14 +14,25 @@ const ivString = '8bytesiv12345678'; // 16 chars for AES
 
 //turn secret box into jsonobject and then into binary
 
+Future<Uint8List?> compressImageToMemory(XFile file) async {
+  return await FlutterImageCompress.compressWithFile(
+    file.path,
+    minWidth: 300,
+    minHeight: 300,
+    quality: 40,
+    format: CompressFormat.jpeg,
+  );
+}
+
 Future<void> uploadImage(XFile image) async {
   final client = Supabase.instance.client;
-
+  final data = await compressImageToMemory(image);
+  if (data == null) {
+    throw Exception('Failed to compress image');
+  }
   //generate random unique name
   final fileName =
       'img_${DateTime.now().millisecondsSinceEpoch}_${client.auth.currentUser?.id ?? ''}_${image.hashCode}.enc';
-
-  var data = await image.readAsBytes();
 
   SimpleKeyPair privateKey = await getPrivateKeyOrGenerate(
     client.auth.currentUser?.id ?? '',
@@ -54,7 +66,7 @@ Future<void> uploadImage(XFile image) async {
         await client.from('match_photos').upsert({
           'match_id': coupleId,
           fieldName: fileName,
-        });
+        }, onConflict: 'match_id');
       });
 }
 
@@ -76,7 +88,7 @@ Future<XFile> downloadImage(String imageName) async {
   return XFile.fromData(Uint8List.fromList(imageData), name: imageName);
 }
 
-Future<String> getImageName() async {
+Future<String?> getImageName() async {
   final client = Supabase.instance.client;
 
   final response = await client
@@ -103,11 +115,13 @@ Future<String> getImageName() async {
   if (photo != null && photo is String && photo.isNotEmpty) {
     return photo;
   }
-
-  throw Exception('No image found for the current user');
+  return null;
 }
 
-Future<XFile> getMatchPhoto() async {
+Future<XFile?> getMatchPhoto() async {
   final imageName = await getImageName();
+  if (imageName == null) {
+    return null;
+  }
   return downloadImage(imageName);
 }
