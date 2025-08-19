@@ -1,12 +1,12 @@
 import 'dart:io';
 
+import 'package:couple_photo_widget/crypto.dart';
 import 'package:couple_photo_widget/image_repo.dart';
+import 'package:couple_photo_widget/utils.dart';
 import 'package:couple_photo_widget/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-
-import 'match.dart';
 
 class ImagePickerWidget extends StatefulWidget {
   const ImagePickerWidget({super.key});
@@ -28,10 +28,10 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
       _image = image;
     });
 
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/widget.png');
-    await file.writeAsBytes(await image.readAsBytes());
-    updateWidget(file.path);
+    // final dir = await getApplicationDocumentsDirectory();
+    // final file = File('${dir.path}/widget.png');
+    // await file.writeAsBytes(await image.readAsBytes());
+    // updateWidget(file.path);
     uploadImage(image);
   }
 
@@ -48,7 +48,21 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         _image != null
             ? Image.file(File(_image!.path), width: 200, height: 200)
             : const Text('No image selected'),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: () => {receiveImageAndUpdateWidget()},
+          child: const Text('Update Widget / Receive Image'),
+        ),
       ],
     );
+  }
+
+  receiveImageAndUpdateWidget() async {
+    XFile image = await getMatchPhoto();
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/widget.png');
+    await file.writeAsBytes(await image.readAsBytes());
+    updateWidget(file.path);
+    snackBarMessage(context, 'Widget updated with new image');
   }
 }

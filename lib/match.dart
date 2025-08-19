@@ -12,7 +12,7 @@ Future<String> getSingleMatchUser() async {
       .single();
 
   return await client
-      .from('users')
+      .from('user_emails')
       .select('id')
       .eq(
         'email',
@@ -38,7 +38,7 @@ Future<List<String>> getMatchedUsers() async {
   final userIds = await Future.wait(
     response.map((email) async {
       final user = await client
-          .from('users')
+          .from('user_emails')
           .select('id')
           .eq('email', email)
           .maybeSingle();
@@ -47,4 +47,18 @@ Future<List<String>> getMatchedUsers() async {
   );
 
   return userIds.whereType<String>().toList();
+}
+
+Future<String> getSingleMatchId() async {
+  final client = Supabase.instance.client;
+  final myEmail = client.auth.currentUser?.email;
+
+  final response = await client
+      .from('couples')
+      .select('id')
+      .or('user1_email.eq.$myEmail,user2_email.eq.$myEmail')
+      .eq('confirmed', true)
+      .single();
+
+  return response['id'] as String;
 }

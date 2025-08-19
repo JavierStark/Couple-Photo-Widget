@@ -23,9 +23,13 @@ class _SignInWidgetState extends State<SignInWidget> {
     //sign in auto if already session signed in
     final session = Supabase.instance.client.auth.currentSession;
     if (session != null) {
-      snackBarMessage(context, "User is already signed in!");
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onSignedIn.call();
+        checkKeysExist(session.user.id).then((exists) {
+          if (!exists) {
+            generateAndSaveKeys(session.user.id);
+          }
+        });
       });
     }
   }

@@ -7,11 +7,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 final secureStorage = FlutterSecureStorage();
 
-SimplePublicKey decodePublicKey(String jsonString) {
-  final data = jsonDecode(jsonString);
-
-  final keyBytes = base64Decode(data['key']);
-
+SimplePublicKey decodePublicKey(String key) {
+  final keyBytes = base64Decode(key);
   return SimplePublicKey(keyBytes, type: KeyPairType.x25519);
 }
 
@@ -55,6 +52,17 @@ Future<SimplePublicKey> getPublicKey(String userId) async {
   throw Exception("Public key not found");
 }
 
+Future<SimpleKeyPair> getPrivateKeyOrGenerate(String id) async {
+  SimpleKeyPair privateKey;
+  try {
+    privateKey = await getPrivateKey();
+  } catch (e) {
+    await generateAndSaveKeys(id);
+    privateKey = await getPrivateKey();
+  }
+  return privateKey;
+}
+
 Future<SimpleKeyPair> getPrivateKey() async {
   final privateKeyString = await secureStorage.read(key: 'private_key');
   if (privateKeyString != null) {
@@ -86,6 +94,10 @@ Future<SecretBox> encryptImageWithSharedSecret(
     secretKey: sharedSecret,
     nonce: nonce,
   );
+
+  //print mac and nonce
+  print('MAC: ${secretBox.mac}');
+  print('Nonce: ${secretBox.nonce}');
   return secretBox;
 }
 
@@ -99,6 +111,10 @@ Future<List<int>> decryptImageWithSharedSecret(
     keyPair: myPrivateKey,
     remotePublicKey: theirPublicKey,
   );
+
+  //print mac and nonce
+  print('MAC: ${secretBox.mac}');
+  print('Nonce: ${secretBox.nonce}');
 
   final aes = AesGcm.with256bits();
   final decryptedBytes = await aes.decrypt(secretBox, secretKey: sharedSecret);
