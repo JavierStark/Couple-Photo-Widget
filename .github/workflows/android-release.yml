@@ -56,11 +56,5 @@ jobs:
         serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
         packageName: dev.javiertorralbo.together_pic
         releaseFiles: build/app/outputs/bundle/release/app-release.aab
-        track: production
+        track: internal
         status: completed
-
-    - name: Upload AAB as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release-aab
-        path: build/app/outputs/bundle/release/app-release.aab
