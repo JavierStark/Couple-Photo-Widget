@@ -15,6 +15,9 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+          fetch-depth: 0   # needed so you can push back
+          ref: ${{ github.ref }}  # ensures you’re on the same branch
 
     - name: Setup Java JDK
       uses: actions/setup-java@v4
@@ -61,7 +64,8 @@ jobs:
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         git add android/app/build.gradle.kts pubspec.lock
         git commit -m "CI: Bump versionCode to $NEW_CODE"
-        git push
+        git push origin HEAD:${GITHUB_REF#refs/heads/}
+
 
     - name: Build Android App Bundle
       run: flutter build appbundle --release
