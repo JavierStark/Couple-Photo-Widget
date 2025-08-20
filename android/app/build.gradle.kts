@@ -30,7 +30,7 @@ android {
 
     defaultConfig {
         applicationId = "dev.javiertorralbo.together_pic"
-        minSdk = 21
+        minSdkVersion = 21
         targetSdk = 34
         versionCode = 5
         versionName = "1.0"
