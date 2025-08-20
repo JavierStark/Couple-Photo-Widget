@@ -44,6 +44,17 @@ jobs:
       run: |
         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app-release-key.jks
 
+    - name: Bump Android versionCode
+      run: |
+        FILE="android/app/build.gradle"
+        # Extract current versionCode
+        CURR_CODE=$(grep versionCode $FILE | awk '{print $2}')
+        # Increment
+        NEW_CODE=$((CURR_CODE + 1))
+        # Replace in file
+        sed -i "s/versionCode $CURR_CODE/versionCode $NEW_CODE/" $FILE
+        echo "Bumped versionCode to $NEW_CODE"
+
     - name: Build Android App Bundle
       run: flutter build appbundle --release
 
