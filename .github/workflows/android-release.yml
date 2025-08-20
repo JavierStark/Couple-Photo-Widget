@@ -19,8 +19,10 @@ jobs:
     - name: Setup Java JDK
       uses: actions/setup-java@v4
       with:
-        distribution: 'adopt'
-        java-version: '11'
+        distribution: 'temurin'
+        java-version: '17'
+    - name: Set JAVA_HOME for Flutter
+      run: echo "JAVA_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
 
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
