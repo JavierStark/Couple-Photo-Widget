@@ -54,7 +54,7 @@ jobs:
 
     - name: Bump Android versionCode
       run: |
-        FILE="android/app/build.gradle"
+        FILE="android/app/build.gradle.kts"
         # Extract current versionCode
         CURR_CODE=$(grep versionCode $FILE | awk '{print $2}')
         # Increment
