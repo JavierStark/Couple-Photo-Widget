@@ -32,7 +32,7 @@ android {
         applicationId = "dev.javiertorralbo.together_pic"
         minSdkVersion(21)
         targetSdkVersion(34)
-        versionCode = 5
+        versionCode = 6
         versionName = "1.0"
     }
 
