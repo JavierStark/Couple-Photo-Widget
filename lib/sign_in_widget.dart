@@ -25,7 +25,7 @@ class _SignInWidgetState extends State<SignInWidget> {
     if (session != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onSignedIn.call();
-        checkKeysExist(session.user.id).then((exists) {
+        checkKeyExist(session.user.id).then((exists) {
           if (!exists) {
             generateAndSaveKeys(session.user.id);
           }
@@ -82,7 +82,7 @@ class _SignInWidgetState extends State<SignInWidget> {
             snackBarMessage(context, "Error signing in: Invalid credentials");
           } else {
             snackBarMessage(context, "User signed in successfully!");
-            checkKeysExist(response.user!.id).then((exists) {
+            checkKeyExist(response.user!.id).then((exists) {
               if (!exists) {
                 generateAndSaveKeys(response.user!.id);
               }

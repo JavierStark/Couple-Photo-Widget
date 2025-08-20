@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -7,29 +6,28 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 final secureStorage = FlutterSecureStorage();
 
-SimplePublicKey decodePublicKey(String key) {
-  final keyBytes = base64Decode(key);
-  return SimplePublicKey(keyBytes, type: KeyPairType.x25519);
-}
+SimplePublicKey decodePublicKey(String key) =>
+    SimplePublicKey(base64Decode(key), type: KeyPairType.x25519);
 
 Future<void> generateAndSaveKeys(String userId) async {
   final algorithm = X25519();
   final keyPair = await algorithm.newKeyPair();
 
   final privateKey = await keyPair.extract();
-  final privateKeyString = base64Encode(privateKey.bytes);
+  final privateKeyStr = base64Encode(privateKey.bytes);
   final publicKey = await keyPair.extractPublicKey();
   final publicKeyStr = base64Encode(publicKey.bytes);
 
-  await secureStorage.write(key: 'private_key', value: privateKeyString);
+  await secureStorage.write(key: 'private_key', value: privateKeyStr);
+  await secureStorage.write(key: 'public_key', value: publicKeyStr);
 
   await Supabase.instance.client.from('user_keys').upsert({
     'user_id': userId,
     'public_key': publicKeyStr,
-  });
+  }, onConflict: 'user_id');
 }
 
-Future<bool> checkKeysExist(String userId) async {
+Future<bool> checkKeyExist(String userId) async {
   final publicKey = await Supabase.instance.client
       .from('user_keys')
       .select('public_key')
@@ -47,35 +45,36 @@ Future<SimplePublicKey> getPublicKey(String userId) async {
       .maybeSingle();
 
   if (publicKey != null && publicKey['public_key'] != null) {
-    return decodePublicKey(publicKey['public_key'] as String);
+    return decodePublicKey(publicKey['public_key']);
   }
   throw Exception("Public key not found");
 }
 
-Future<SimpleKeyPair> getPrivateKeyOrGenerate(String id) async {
+Future<SimpleKeyPair> getPrivateKeyOrGenerate(String userId) async {
   SimpleKeyPair privateKey;
   try {
-    privateKey = await getPrivateKey();
+    privateKey = await getMyKey();
   } catch (e) {
-    await generateAndSaveKeys(id);
-    privateKey = await getPrivateKey();
+    await generateAndSaveKeys(userId);
+    privateKey = await getMyKey();
   }
   return privateKey;
 }
 
-Future<SimpleKeyPair> getPrivateKey() async {
+Future<SimpleKeyPair> getMyKey() async {
   final privateKeyString = await secureStorage.read(key: 'private_key');
-  if (privateKeyString != null) {
+  final publicKeyString = await secureStorage.read(key: 'public_key');
+  if (privateKeyString != null && publicKeyString != null) {
     final privateKeyBytes = base64Decode(privateKeyString);
-    // get pair only from private key
+    final publicKeyBytes = base64Decode(publicKeyString);
 
     return SimpleKeyPairData(
       privateKeyBytes,
-      publicKey: SimplePublicKey(privateKeyBytes, type: KeyPairType.x25519),
+      publicKey: SimplePublicKey(publicKeyBytes, type: KeyPairType.x25519),
       type: KeyPairType.x25519,
     );
   }
-  throw Exception("Private key not found");
+  throw Exception("Key not found");
 }
 
 Future<SecretBox> encryptImageWithSharedSecret(
@@ -97,8 +96,6 @@ Future<SecretBox> encryptImageWithSharedSecret(
     nonce: nonce,
   );
 
-  print('MAC: ${secretBox.mac}');
-  print('Nonce: ${secretBox.nonce}');
   return secretBox;
 }
 
@@ -107,16 +104,11 @@ Future<List<int>> decryptImageWithSharedSecret(
   SimpleKeyPair myPrivateKey,
   SimplePublicKey theirPublicKey,
 ) async {
-  //build public key with string
   final x25519 = X25519();
   final sharedSecret = await x25519.sharedSecretKey(
     keyPair: myPrivateKey,
     remotePublicKey: theirPublicKey,
   );
-
-  //print mac and nonce
-  print('MAC: ${secretBox.mac}');
-  print('Nonce: ${secretBox.nonce}');
 
   final aes = AesGcm.with256bits();
   final decryptedBytes = await aes.decrypt(secretBox, secretKey: sharedSecret);
