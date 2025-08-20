@@ -47,27 +47,6 @@ jobs:
       run: |
         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app-release-key.jks
 
-    - name: Bump Android versionCode
-      run: |
-        FILE="android/app/build.gradle.kts"
-        # Extract current versionCode
-        CURR_CODE=$(grep versionCode $FILE | awk '{print $2}')
-        # Increment
-        NEW_CODE=$((CURR_CODE + 1))
-        # Replace in file
-        sed -i "s/versionCode $CURR_CODE/versionCode $NEW_CODE/" $FILE
-        echo "Bumped versionCode to $NEW_CODE"
-
-    # - name: Commit versionCode bump
-    #   run: |
-    #     git config --global user.name 'github-actions[bot]'
-    #     git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-    #     git remote set-url origin https://javierstark:${{ secrets.PAT_TOKEN }}@github.com/JavierStark/Couple-Photo-Widget.git
-    #     git add android/app/build.gradle.kts pubspec.lock
-    #     git commit -m "CI: Bump versionCode to $NEW_CODE"
-    #     git push origin HEAD:${GITHUB_REF#refs/heads/}
-
-
     - name: Build Android App Bundle
       run: flutter build appbundle --release
 
