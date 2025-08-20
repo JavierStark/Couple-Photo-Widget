@@ -49,9 +49,8 @@ class _MatchWidgetState extends State<MatchWidget> {
     final match = await client
         .from('couples')
         .select()
-        .or(
-          'user1_email.eq.$myEmail.and.user2_email.eq.$email,user1_email.eq.$email.and.user2_email.eq.$myEmail',
-        )
+        .or('user1_email.eq.$myEmail,user2_email.eq.$myEmail')
+        .or('user2_email.eq.$email,user1_email.eq.$email')
         .maybeSingle();
 
     if (match != null) {
@@ -83,23 +82,26 @@ class _MatchWidgetState extends State<MatchWidget> {
       'confirmed': false,
     });
     snackBarMessage(context, 'Request sent!');
-
-    // Poll for confirmation after delay
-    Future.delayed(const Duration(seconds: 5), () async {
-      final updatedMatch = await client
-          .from('couples')
-          .select()
-          .or(
-            'user1_email.eq.$myEmail.and.user2_email.eq.$email,user1_email.eq.$email.and.user2_email.eq.$myEmail',
-          )
-          .maybeSingle();
-      if (updatedMatch != null && updatedMatch['confirmed'] == true) {
-        snackBarMessage(context, 'Match confirmed!');
-        widget.onMatch();
-      } else {
-        snackBarMessage(context, 'Still waiting for confirmation...');
-      }
-    });
+    var confirmed = false;
+    while (!confirmed) {
+      await Future.delayed(const Duration(seconds: 5), () async {
+        print('Polling for confirmation...');
+        final updatedMatch = await client
+            .from('couples')
+            .select()
+            .or('user1_email.eq.$myEmail,user2_email.eq.$myEmail')
+            .or('user2_email.eq.$email,user1_email.eq.$email')
+            .maybeSingle();
+        if (updatedMatch != null && updatedMatch['confirmed'] == true) {
+          snackBarMessage(context, 'Match confirmed!');
+          confirmed = true;
+          widget.onMatch();
+        } else {
+          snackBarMessage(context, 'Still waiting for confirmation...');
+        }
+      });
+      print('Waiting for confirmation...');
+    }
   }
 
   @override

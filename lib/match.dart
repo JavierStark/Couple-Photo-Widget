@@ -8,8 +8,9 @@ Future<String> getSingleMatchUser() async {
     'get_partner_id',
     params: {'my_email': myEmail},
   );
-  final partnerId = response.data as String?;
-
+  final partnerId = response as String?;
+  // print in yellow
+  print('\x1B[33m$partnerId\x1B[0m');
   return partnerId ?? '';
 }
 
