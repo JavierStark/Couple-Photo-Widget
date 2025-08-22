@@ -1,0 +1,53 @@
+name: Build Android App Bundle (Test)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly build test on Mondays at 2 AM UTC
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Java JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'adopt'
+        java-version: '11'
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
+        channel: 'stable'
+
+    - name: Get Flutter dependencies
+      run: flutter pub get
+
+    - name: Run Flutter analyze
+      run: flutter analyze
+
+    - name: Run Flutter tests
+      run: flutter test
+
+    - name: Build Android APK (Debug)
+      run: flutter build apk --debug
+
+    - name: Build Android APK (Release - unsigned)
+      run: flutter build apk --release --no-shrink
+
+    - name: Upload Debug APK as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug-apk
+        path: build/app/outputs/flutter-apk/app-debug.apk
+
+    - name: Upload Release APK as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release-apk-unsigned
+        path: build/app/outputs/flutter-apk/app-release.apk

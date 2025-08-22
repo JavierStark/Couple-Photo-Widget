@@ -43,4 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android signing and security files
+android/key.properties
+android/*.jks
+android/*.keystore
+*.jks
+*.keystore
+
+# Environment files
 lib/.env
+.env
