@@ -40,6 +40,7 @@ class _MatchWidgetState extends State<MatchWidget> {
 
   void _searchUser() async {
     final email = _emailController.text.trim();
+    _emailController.clear();
     if (email == myEmail) {
       snackBarMessage(context, 'Cannot match with yourself');
       return;
@@ -49,8 +50,9 @@ class _MatchWidgetState extends State<MatchWidget> {
     final match = await client
         .from('couples')
         .select()
-        .or('user1_email.eq.$myEmail,user2_email.eq.$myEmail')
-        .or('user2_email.eq.$email,user1_email.eq.$email')
+        .or(
+          'and(user1_email.eq.$myEmail,user2_email.eq.$email),and(user1_email.eq.$email,user2_email.eq.$myEmail)',
+        )
         .maybeSingle();
 
     if (match != null) {
@@ -112,6 +114,7 @@ class _MatchWidgetState extends State<MatchWidget> {
           controller: _emailController,
           decoration: const InputDecoration(labelText: 'Enter email'),
         ),
+        const SizedBox(height: 16),
         ElevatedButton(onPressed: _searchUser, child: const Text('Search')),
       ],
     );
